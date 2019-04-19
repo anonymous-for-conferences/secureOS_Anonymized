@@ -3,7 +3,7 @@
 
   Run following commands from the machine you want to protect.
 
-  #git clone https://github.com/anonymous-for-conferences/secureOS_kernel_Anonymized
+  #git clone https://github.com/anonymous-for-conferences/secureOS_Anonymized
 
   #./install.sh
 
