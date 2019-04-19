@@ -1,0 +1,18 @@
+Setup: 2 users u1 and u2, 2 files f1 and f2 both owned by u1 with perms 600 and 644.
+
+* Scenario 1: Indirect leaks/modifications of information are blocked by RWFM:
+    Program p1 with UID = u1, reads f1 and writes (appends the contents of f1 to) f2. p1 executes successfully under the nomal Linux access controls.
+    However under RWFM, while p1 successfully reads f1, it is denied the write to f2, because otherwise u2 who does not have permission to access the contents of f1
+    can (indirectly) get access to its contents from f2.
+
+    This example clearly demonstrates that while Linux access controls restrict only direct accesses to information, RWFM also restricts indirect accesses.
+
+* Scenario 2: Information processing capabilities of two processes with the same UID need not be the same:
+    Program p1 with UID = u1, reads f1 and writes (appends the contents of f1 to) f2. p1 executes successfully under the nomal Linux access controls.
+    However under RWFM, while p1 successfully reads f1, it is denined the write to f2 (for reasons mentioned in Scenario 1 above).
+
+    Program p2 with UID = u1, writes f2. Both in the standard Linux access controls and RWFM p2 executes successully.
+
+    This example clearly demonstrates that while in the standard Linux access controls all the programs with the same UID are controlled similarly,
+    RWFM controls them based on their current sensitiviy level.
+

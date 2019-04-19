@@ -1,0 +1,16 @@
+For simple kill and sigqueue testing:
+    -Run 2 instances of "simple_kill_sigqueue_victim.c" process in two different rwfm shells
+    -Execute "simple_kill_sigqueue_killer.c" with 2 command-line parameters - First as pid of victim 1 and second as pid of victim 2
+    -killer process will kill one of the victims with kill syscall and another with sigqueue syscall.
+
+For multi-kill (kill with first argument as 0 - meaning send signal to all processes which are in same process group as current process):
+    -Simply run "multi_kill.c", which will fork 3 processes which are in same pgrp and kill everone.
+
+For killpg (send signal to processes in an entire process group):
+    -Simply run "simple_killpg.c", which will do same thing as "multi_kill.c" but using killpg instead of kill.
+
+For checking kill for pid = -1:
+    -DO NOT TRY THIS EXAMPLE!!!!!
+    -The example "multi_kill_all_privileged.c" is used.
+    -Though this executes correctly, but it will effectively kill all processes on your machine apart from the kernel processes!
+    -Hence, you would immediately be thrown out of the system, closing all your current work, locking the system and finally logging you out!

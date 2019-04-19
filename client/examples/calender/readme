@@ -1,0 +1,21 @@
+Setup: 
+    3 users A, B and S
+    2 files AC with policy (A,{A,S},{A}) and BC with policy (B,{B,S},{B}).
+
+Alice (A) and Bob (B) wish to schedule a meeting with the help of a scheduling server (S),
+and submit their calendars (AC and BC) to the server.
+Server reads AC and BC, and identifies a suitable meeting time (MT).
+MT will have label (S,{S},{A,B,S}).
+
+Note that MT is readable only by S.
+For the result to be useful to A and B, MT has to be downgraded by adding A and B as readers.
+
+This example translates into the following setup in the Linux system.
+3 users A, B and S
+2 files AC owned by A with 66? perms and BC owned by B with 66? perms.
+A program for scheduling meeting (SM) running with UID = S, reads AC and BC, and creates MT.
+
+NOTE: if Examples 2 and 3 were run on a standard Linux machine,
+the new files TF and MT would have perms 666 - UMASK, unless the program explicitly does a chmod
+in which case the perms could be set to anything of its choice.
+This is clearly a security violation addressed by RWFM by assigning appropriate labels to new objects.

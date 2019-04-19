@@ -1,0 +1,35 @@
+Setup: 2 users A and B, 2 roles R1 and R2, role-hierarchy = R2>R1, user assignment = A->R2 and B->R1,
+2 files f1 and f2 with permission assignment = R1->{(f1,r),(f1,w)} and R2->{(f2,r),(f2,w)}.
+
+    A - R2 - {(f2,r),(f2,w)}
+        ||
+    B - R1 - {(f1,r),(f1,w)}
+
+In effect, the label of f1 is (A,{A,B},{A,B}) and that of f2 is (A,{A},{A}).
+
+* Scenario 1: Indirect leaks of information are blocked by RWFM:
+    Program p1 with UID = A, reads f2 and writes (appends the contents of f2 to) f1. p1 executes successfully under RBAC.
+    However under RWFM, while p1 successfully reads f2, it is denied the write to f1, because otherwise B who does not have permission to access the contents of f2
+    can (indirectly) get access to its contents from f1.
+
+    This example clearly demonstrates that while RBAC prevents only direct leaks of information, RWFM also prevents indirect leaks.
+
+* Scenario 2: Indirect modifications of information are blocked by RWFM:
+    Program p2 with UID = A, reads f1 and writes (appends the contents of f1 to) f2. p2 executes successfully under RBAC.
+    However under RWFM, while p2 successfully reads f1, it is denied the write to f2, because otherwise B who does not have permission to modify the contents of f2
+    can (indirectly) influence contents of f2 via contents in f1.
+
+    This example clearly demonstrates that while RBAC prevents only direct modifications of information, RWFM also prevents indirect modifications.
+
+This example translates into the following setup in the Linux system.
+2 users A and B, 2 files f1 and f2 owned by A with perms 660 A:B and 660 A:A respectively.
+2 programs p1 reads f2 and writes f1, and p2 reads f1 and writes f2, running with UID = A.
+
+Advantages of RWFM:
+    Both RBAC and RWFM allow B to successfully execute only programs of the form (Rd f1 + Wr f1)*,
+    RBAC allows A to successfully execute only programs of the form (Rd f1 + Wr f1 + Rd f2 + Wr f2)*,
+    whereas RWFM allows A to successfully execute only programs of the form (Wr f1 + Wr f2)*.[(Rd f1 + Wr f1)* + (Rd f2 + Wr f2)*].(Rd f1 + Rd f2)*.
+    Further note that, under the stricter restrictions of RWFM also, the allowed programs for A include the allowed programs for B.
+    Therefore, RWFM also supports the RBAC notion of sessions, whereby a principal can work with lower privileges in adherence with the principle of least privilege.
+    Further, this also shows that while RBAC can be configured to enforce a lattice policy, not every RBAC is a lattice policy.
+

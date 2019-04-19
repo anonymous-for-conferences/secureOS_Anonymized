@@ -1,0 +1,42 @@
+Setup: 3 companies A1, A2 and B with datasets D11, D12 and D2 respectively.
+2 conflict-of-interest classes, one comprising companies A1 and A2, and the other comprising company B.
+5 Chinese-Walls ({A1,B},{A2,B},{A1},{A2},{B}).
+8 users. u1 to u5 assigned the 5 Chinese-Walls respectively, and d11, d12 and d2 denoting owners of the 3 companies respectively.
+Assignments from the perspective of datasets are as follows: {d11, u1, u3} -> D11, {d12, u2, u4} -> D12, and {d2, u1, u2, u5} -> D2.
+Assignments from the perspective of users are as follows: u3 = d11 -> {D11}, u4 = d12 -> {D12}, u5 = d2 -> {D2}, u1 -> {D11, D2}, and u2 -> {D12, D2}.
+Assignments from the perspective of Chinese-Walls are as follows: {u1} -> {A1,B}, {u2} -> {A2,B}, {u3, d11} -> {A1}, {u4, d12} -> {A2}, and {u5, d2} -> {B}.
+This gives the following labelling D11(d11,{d11,u1,u3},{d11}), D12(d12,{d12,u2,u4},{d12}), and D2(d2,{d2,u1,u2,u5},{d2}).
+
+* Scenario 1: Information in one company dataset cannot be leaked (direct/indirect) to the owner of another company dataset.
+    Program p1 with UID = u1, reads D2 and creates (writes the contents of D2 to) file f1. f1 has label (u1,{d2,u1,u2,u5},{u1,d2}).
+    Label of f1 immediately tells us that neither d11 nor d12 can access it.
+
+* Scenario 2: Information in one company dataset cannot influence (direct/indirect) another company dataset.
+    Program p2 with UID = u1, reads D11, creates (writes the contents of D11 to) file f2, reads f1 (from previous scenario) and writes (copies the content of f1 to) f2.
+    f2 has label (u1,{d11,u1,u3},{u1,d11}), and RWFM blocks p2 from writing f2, thereby preventing data from company B's dataset from influencing company A1's dataset.
+
+* Scenario 3: Information in datasets of two companies in conflict can never be combined.
+    Notice that there is no common reader to datasets D11 and D12. RWFM labelling sttraightaway gives this property.
+
+This example translates into the following setup in the Linux system.
+8 users u1 to u5, and d11,d12 and d2.
+3 files D11, D12 and D2 owned by d11, d12 and d2 respectively.
+3 groups Group G1={d11,u1,u3}, G2={d12,u2,u4} and G3={d2,u1,u2,u5}.
+Permissions of D11: chown d11:G1 D11, chmod 640 D11.
+Permissions of D12: chown d12:G2 D12, chmod 640 D12.
+Permissions of D2: chown d2:G3 D2, chmod 640 D2.
+5 programs
+    1. p1 reads D2 and creates f1, running with UID = u1.
+    2. p3 reads f1, running with UID = d11 or d12. Denied in both cases. p1 and p3 together demonstrate scenario 1.
+    3. p4 running with UID = u1 reads D11 and writes D2. Write denied by RWFM demonstrating scenario 2 - direct influence.
+    4. p2 running with UID = u1 reads D11, creates f2, reads f1 and writes f2. The last write is denied by RWFM denomstrating scenario 2 - indirect influence.
+    5. p5 reads D11 and reads D12, running with UID of any of the 8 users. Denied in all cases.
+       In some cases the first read itself is denied, in others the first is allowed but the second is denied.
+       Note that even if the order of reads is changed, the program does not execute successfully for any UID.
+       This demonstrates scenario 3.
+
+RWFM formulation above enforces the Chinese-Wall restrictions:
+    1. Once a subject has accessed an object the only other objects accessible by that subject lie within the same company dataset
+       or within a different conflict of interest class.
+    2. A subject can at most have access to one company dataset in each conflict of interest class.
+    3. The flow of information in a company dataset is confined to itself.

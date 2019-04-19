@@ -1,0 +1,19 @@
+Setup: 
+    2 users B and P
+    2 files TD with policy (B,{B,P},{B}) and DB with policy (P,{P},{P}).
+Bob (B) wants to utilize services of a professional tax preparer(P)
+for filing tax returns, and submits his tax data (TD) to him.
+Preparer has a secret database (DB) of tax optimization rules which he uses
+for preparing tax forms for his clients.
+
+Preparer reads TD and DB and prepares the tax form (TF).
+TF will have label (P,{P},{B,P}). Note that TF is readable only by P.
+For the result to be useful to B, TF has to be downgraded by adding B as a reader.
+Downgrade operation is meaningful only during a live communication between parties.
+It is found to be inappropriate for filesystem controls,
+and hence the current implementation does not support it.
+
+This example translates into the following setup in the Linux system.
+2 users B and P, 2 files TD owned by B with 664 perms and DB owned by P with 660 perms.
+A program for tax computation (TC) running with UID = P, reads TD and DB, and creates TF.
+

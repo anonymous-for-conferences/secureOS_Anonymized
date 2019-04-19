@@ -1,0 +1,1 @@
+rm -f multi_kill multi_kill_all_privileged simple_killpg simple_kill_sigqueue_killer simple_kill_sigqueue_victim
